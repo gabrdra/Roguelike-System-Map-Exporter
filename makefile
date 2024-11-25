@@ -3,14 +3,14 @@ CC = g++
 CFLAGS = -Wall -g -std=c++11 -Iinclude
 
 # Source files
-SRCS = src/main.cpp src/BacktrackData.cpp src/Connection.cpp src/LevelData.cpp src/MapData.cpp src/Room.cpp
+SRCS = main.cpp BacktrackData.cpp Connection.cpp LevelData.cpp MapData.cpp Room.cpp
 
 # Object files
 OBJ_DIR = ./build
-OBJS = $(SRCS:src/%.cpp=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 # Executable name
-TARGET = my_program
+TARGET = rogueSysMapExporter
 
 # Default target
 all: $(TARGET)
@@ -24,7 +24,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
 # Compilation step
-$(OBJ_DIR)/%.o: src/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean build files

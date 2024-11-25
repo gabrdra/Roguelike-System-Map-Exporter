@@ -50,6 +50,11 @@
             "cwd": "c:\\Users\\joaog\\Desktop\\Gamedev\\Misc\\RoguelikeSystemMapExporter",
             "binaryPath": "c:\\Users\\joaog\\Desktop\\Gamedev\\Misc\\RoguelikeSystemMapExporter\\my_program",
             "binaryArgs": []
+        },
+        {
+            "cwd": "c:\\Users\\joaog\\Desktop\\Gamedev\\Misc\\RoguelikeSystemMapExporter",
+            "binaryPath": "c:\\Users\\joaog\\Desktop\\Gamedev\\Misc\\RoguelikeSystemMapExporter\\rogueSysMapExporter",
+            "binaryArgs": []
         }
     ]
 }
