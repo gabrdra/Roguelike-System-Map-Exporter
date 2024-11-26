@@ -13,10 +13,7 @@
 class Main{
 public:
     void generate_level_possibilities();
-    bool load_plugin_data(const std::string& path);
-private:
-    MapData map_data;
-    std::string current_level_name;
+    void print_map_data(MapData map_data);
 };
 
 #endif

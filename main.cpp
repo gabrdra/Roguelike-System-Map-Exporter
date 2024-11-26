@@ -1,5 +1,5 @@
 #include "main.h"
-
+#include "FileHandler.h"
 
 using json = nlohmann::json;
 
@@ -7,81 +7,25 @@ int main()
 {
     Main main;
     std::string plugin_data_path = "save_data.json";
-    main.load_plugin_data(plugin_data_path);
-    main.generate_level_possibilities();
+    FileHandler fileHandler;
+    MapData map_data = fileHandler.load_map_data(plugin_data_path);
+    main.print_map_data(map_data);
     return 0;
 }
-void generate_level_possibilities();
 
-bool Main::load_plugin_data(const std::string& path) {
-    std::ifstream file;
-    file.open(path);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file for reading" << std::endl;
-        return false;
-    }
 
-    json data_dict;
-    try {
-        file >> data_dict;
-    } catch (const std::exception& e) {
-        std::cerr << "Error parsing JSON: " << e.what() << std::endl;
-        return false;
-    }
-    file.close();
-
-    if (!data_dict.contains("file_type") || data_dict["file_type"] != "save_data" ||
-        !data_dict.contains("passages_holder_name")) {
-        std::cerr << "Error with plugin save file structure" << std::endl;
-        return false;
-    }
-
-    MapData local_map_data;
-    
-    for (const auto& level_dict : data_dict["levels"]) {
-        LevelData level;
-        
-        // First pass: Create all rooms
-        for (const auto& room_dict : level_dict["rooms"]) {
-            auto room = std::make_shared<Room>(
-                room_dict["name"].get<std::string>(),
-                room_dict["scene_uid"].get<std::string>(),
-                room_dict["required"].get<bool>(),
-                room_dict["max_passes"].get<int>()
-            );
-            level.rooms[room->name] = room;
-        }
-
-        // Second pass: Set up passages and connections
-        for (const auto& room_dict : level_dict["rooms"]) {
-            auto& room = level.rooms[room_dict["name"].get<std::string>()];
-            for (const auto& passage_dict : room_dict["passages"]) {
-                std::vector<std::shared_ptr<Connection>> connections;
-                for (const auto& conn_dict : passage_dict["connections"]) {
-                    std::shared_ptr<Connection> conn = std::make_shared<Connection>(
-                        level.rooms[conn_dict["name"].get<std::string>()],
-                        conn_dict["connected_passage"].get<std::string>()
-                    );
-                    connections.push_back(conn);
+//print map
+void Main::print_map_data(MapData map_data) {
+    for (const auto& [level_name, level] : map_data.levels) {
+        std::cout << "Level: " << level_name << std::endl;
+        for (const auto& [room_name, room] : level.rooms) {
+            std::cout << "Room: " << room_name << std::endl;
+            for (const auto& [passage_name, connections] : room->passages) {
+                std::cout << "Passage: " << passage_name << std::endl;
+                for (const auto& conn : connections) {
+                    std::cout << "    " << conn->to_string() << std::endl;
                 }
-                room->passages[passage_dict["name"].get<std::string>()] = connections;
             }
         }
-
-        if (level_dict.contains("starter_room_name") && !level_dict["starter_room_name"].is_null()) {
-            level.starter_room = level.rooms[level_dict["starter_room_name"].get<std::string>()];
-        }
-        else{
-            std::cerr << "No starter room found for level " << level_dict["name"].get<std::string>() << std::endl;
-            return false;
-        }
-        
-        local_map_data.levels[level_dict["name"].get<std::string>()] = level;
     }
-
-    local_map_data.passages_holder_name = data_dict["passages_holder_name"].get<std::string>();
-    map_data = local_map_data;
-    current_level_name = data_dict["current_level_name"].get<std::string>();
-    return true;
 }
-

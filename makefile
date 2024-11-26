@@ -3,7 +3,7 @@ CC = g++
 CFLAGS = -Wall -g -std=c++11 -Iinclude
 
 # Source files
-SRCS = main.cpp BacktrackData.cpp Connection.cpp LevelData.cpp MapData.cpp Room.cpp
+SRCS = main.cpp BacktrackData.cpp Connection.cpp LevelData.cpp MapData.cpp Room.cpp FileHandler.cpp MapExporter.cpp
 
 # Object files
 OBJ_DIR = ./build
