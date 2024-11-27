@@ -43,7 +43,21 @@
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "forward_list": "cpp",
+        "optional": "cpp",
+        "ratio": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "sstream": "cpp",
+        "valarray": "cpp",
+        "list": "cpp"
     },
     "makefile.launchConfigurations": [
         {
