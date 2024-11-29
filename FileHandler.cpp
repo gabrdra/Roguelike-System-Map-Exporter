@@ -35,7 +35,7 @@ MapData FileHandler::load_map_data(const std::string& path) {
     MapData local_map_data;
     
     for (const auto& level_dict : data_dict["levels"]) {
-        LevelData level;
+        std::shared_ptr<LevelData> level = std::make_shared<LevelData>();
         
         // First pass: Create all rooms
         for (const auto& room_dict : level_dict["rooms"]) {
@@ -45,17 +45,17 @@ MapData FileHandler::load_map_data(const std::string& path) {
                 room_dict["required"].get<bool>(),
                 room_dict["max_passes"].get<int>()
             );
-            level.rooms[room->name] = room;
+            level->rooms[room->name] = room;
         }
 
         // Second pass: Set up passages and connections
         for (const auto& room_dict : level_dict["rooms"]) {
-            auto& room = level.rooms[room_dict["name"].get<std::string>()];
+            auto& room = level->rooms[room_dict["name"].get<std::string>()];
             for (const auto& passage_dict : room_dict["passages"]) {
                 std::vector<std::shared_ptr<Connection>> connections;
                 for (const auto& conn_dict : passage_dict["connections"]) {
                     std::shared_ptr<Connection> conn = std::make_shared<Connection>(
-                        level.rooms[conn_dict["name"].get<std::string>()],
+                        level->rooms[conn_dict["name"].get<std::string>()],
                         conn_dict["connected_passage"].get<std::string>()
                     );
                     connections.push_back(conn);
@@ -65,7 +65,7 @@ MapData FileHandler::load_map_data(const std::string& path) {
         }
 
         if (level_dict.contains("starter_room_name") && !level_dict["starter_room_name"].is_null()) {
-            level.starter_room = level.rooms[level_dict["starter_room_name"].get<std::string>()];
+            level->starter_room = level->rooms[level_dict["starter_room_name"].get<std::string>()];
         }
         else{
             std::cerr << "No starter room found for level " << level_dict["name"].get<std::string>() << std::endl;

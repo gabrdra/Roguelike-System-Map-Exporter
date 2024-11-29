@@ -7,9 +7,9 @@
 
 class MapData {
 public:
-    std::unordered_map<std::string, LevelData> levels;
+    std::unordered_map<std::string, std::shared_ptr<LevelData>> levels;
     std::string passages_holder_name;
 
-    MapData(std::unordered_map<std::string, LevelData> _levels = {}, std::string _passages_holder_name = "Passages");
+    MapData(std::unordered_map<std::string, std::shared_ptr<LevelData>> _levels = {}, std::string _passages_holder_name = "Passages");
 };
 #endif

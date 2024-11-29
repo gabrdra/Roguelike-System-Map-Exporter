@@ -18,7 +18,7 @@ public:
 
 
     LevelData();
-    LevelData(std::map<std::string, std::shared_ptr<Room>> rooms, std::shared_ptr<Room> starter_room);
+    LevelData(std::unordered_map<std::string, std::shared_ptr<Room>> rooms, std::shared_ptr<Room> starter_room);
     
 };
 #endif

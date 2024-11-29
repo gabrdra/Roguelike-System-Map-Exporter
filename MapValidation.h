@@ -10,6 +10,7 @@ class MapValidation
 {
 public:
     MapData validate_map(const MapData map_data);
+private:
     void multiply_rooms(std::shared_ptr<LevelData> level);
     LevelData generate_level_possibilities(const std::shared_ptr<LevelData> input_level);
     std::stack<Connection> get_unused_connections_from_room(std::shared_ptr<Room> room);

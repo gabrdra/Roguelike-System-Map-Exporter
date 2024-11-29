@@ -3,5 +3,5 @@
 #include "Connection.h"
 
 LevelData::LevelData() {}
-LevelData::LevelData(std::map<std::string, std::shared_ptr<Room>> rooms, std::shared_ptr<Room> starter_room)
+LevelData::LevelData(std::unordered_map<std::string, std::shared_ptr<Room>> rooms, std::shared_ptr<Room> starter_room)
     : rooms(rooms), starter_room(starter_room) {}
