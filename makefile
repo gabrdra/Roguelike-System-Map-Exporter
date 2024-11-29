@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = g++
-CFLAGS = -Wall -g -std=c++11 -Iinclude
+CFLAGS = -Wall -g -std=c++17 -Iinclude
 
 # Source files
 SRCS = main.cpp BacktrackData.cpp Connection.cpp LevelData.cpp MapData.cpp Room.cpp FileHandler.cpp MapValidation.cpp

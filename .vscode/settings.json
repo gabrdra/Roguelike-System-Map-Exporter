@@ -57,7 +57,9 @@
         "span": "cpp",
         "sstream": "cpp",
         "valarray": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "variant": "cpp",
+        "unordered_set": "cpp"
     },
     "makefile.launchConfigurations": [
         {

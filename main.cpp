@@ -27,7 +27,7 @@ void Main::print_map_data(MapData map_data) {
             std::cout << "Room: " << room_name << std::endl;
             for (const auto& [passage_name, connections] : room->passages) {
                 std::cout << "Passage: " << passage_name << std::endl;
-                for (const auto& conn : connections) {
+                for (const auto& conn : std::get<std::vector<std::shared_ptr<Connection>>>(connections)) {
                     std::cout << "    " << conn->to_string() << std::endl;
                 }
             }

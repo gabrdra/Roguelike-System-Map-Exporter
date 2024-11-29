@@ -11,9 +11,9 @@ class BacktrackData
 
 public:
     std::string parent_room_name;
-    Room room;
-    std::unordered_map<std::string, Connection> connections;
-    BacktrackData(std::string _parent_room_name = "", Room _room = Room(), std::unordered_map<std::string, Connection> _connections = {});
+    std::shared_ptr<Room> room;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Connection>>> passages_attempts;
+    BacktrackData(std::string _parent_room_name = "", std::shared_ptr<Room> _room, std::unordered_map<std::string, std::vector<std::shared_ptr<Connection>>> passages_attempts);
 };
 
 #endif

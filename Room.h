@@ -3,8 +3,9 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <memory>
+#include <variant>
 
 class Connection;
 
@@ -14,11 +15,11 @@ public:
     std::string scene_uid;
     bool required;
     int max_passes;
-    std::map<std::string, std::vector<std::shared_ptr<Connection>>> passages;
+    std::unordered_map<std::string, std::variant<std::shared_ptr<Connection>,std::vector<std::shared_ptr<Connection>>>> passages;
 
     Room(const std::string& _name = "", const std::string& _scene_uid = "", bool _required = false, int _max_passes = 1);
-    Room(const std::string& _name, const std::string& _scene_uid, bool _required, int _max_passes, std::map<std::string, std::vector<std::shared_ptr<Connection>>> _passages);
-
+    Room(const std::string& _name, const std::string& _scene_uid, bool _required, int _max_passes, std::unordered_map<std::string, std::variant<std::shared_ptr<Connection>,std::vector<std::shared_ptr<Connection>>>> _passages);
+    Room(const std::string& _name, const std::string& _scene_uid, std::unordered_map<std::string, std::variant<std::shared_ptr<Connection>,std::vector<std::shared_ptr<Connection>>>> passages = {});
 };
 
 #endif
