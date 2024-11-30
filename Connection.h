@@ -3,8 +3,7 @@
 
 #include <string>
 #include <memory>
-
-class Room;
+#include "Room.h"
 
 class Connection {
 public:
@@ -14,6 +13,11 @@ public:
     Connection(std::shared_ptr<Room> _room, const std::string& _connected_passage);
     std::string to_string() const;
     bool equals(const Connection& other_connection) const;
+
+    // Custom comparator
+    bool operator<(const Connection& other) const {
+        return room->name == other.room->name && connected_passage == other.connected_passage;
+    }
 };
 
 #endif

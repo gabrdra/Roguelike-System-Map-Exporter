@@ -14,7 +14,7 @@ int main()
     main.print_map_data(map_data);
     std::cout << std::endl << "Map data after validation" << std::endl;
     MapData validated_map = mapValidation.validate_map(map_data);
-    main.print_map_data(validated_map);
+    main.print_validated_map_data(validated_map);
     return 0;
 }
 
@@ -31,6 +31,34 @@ void Main::print_map_data(MapData map_data) {
                     std::cout << "    " << conn->to_string() << std::endl;
                 }
             }
+        }
+    }
+}
+void Main::print_validated_map_data(MapData map_data) {
+    for (const auto& [level_name, level] : map_data.levels) {
+        std::cout << "Level: " << level_name << std::endl;
+        for (const auto& [room_name, room] : level->rooms) {
+            std::cout << "Room: " << room_name << std::endl;
+            for (const auto& [passage_name, connections] : room->passages) {
+                std::cout << "Passage: " << passage_name << std::endl;
+                for (const auto& conn : std::get<std::vector<std::shared_ptr<Connection>>>(connections)) {
+                    std::cout << "    " << conn->to_string() << std::endl;
+                }
+            }
+        }
+        std::cout<<"ConnPairs: "<<std::endl;
+        //print connection pairs
+        for (const auto& conn_pair : level->connection_pairs) {
+            std::cout << "Connection pair: " << conn_pair.first->to_string() << " - " << conn_pair.second->to_string() << std::endl;
+        }
+        std::cout<<"Possibilities: "<<std::endl;
+        //print possibilities
+        for (const auto& possibility : level->possibilities) {
+            std::cout << "Possibility: ";
+            for (const auto& index : possibility) {
+                std::cout << index << " ";
+            }
+            std::cout << std::endl;
         }
     }
 }

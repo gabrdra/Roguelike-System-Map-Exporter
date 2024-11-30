@@ -14,6 +14,7 @@ class Main{
 public:
     void generate_level_possibilities();
     void print_map_data(MapData map_data);
+    void print_validated_map_data(MapData map_data);
 };
 
 #endif
