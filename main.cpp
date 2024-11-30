@@ -8,6 +8,7 @@ int main()
     Main main;
     MapValidation mapValidation;
     std::string plugin_data_path = "save_data.json";
+    std::string exported_data_path = "exported_data.json";
     FileHandler fileHandler;
     MapData map_data = fileHandler.load_map_data(plugin_data_path);
     std::cout << "Map data loaded" << std::endl;
@@ -15,6 +16,7 @@ int main()
     std::cout << std::endl << "Map data after validation" << std::endl;
     MapData validated_map = mapValidation.validate_map(map_data);
     main.print_validated_map_data(validated_map);
+    fileHandler.save_validated_map_data(exported_data_path, validated_map);
     return 0;
 }
 

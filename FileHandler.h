@@ -6,5 +6,6 @@ class FileHandler
 {
     public:
     MapData load_map_data(const std::string& file_path);
+    void save_validated_map_data(const std::string& file_path, const MapData& map_data);
 };
 #endif

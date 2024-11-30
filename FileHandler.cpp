@@ -78,3 +78,58 @@ MapData FileHandler::load_map_data(const std::string& path) {
     local_map_data.passages_holder_name = data_dict["passages_holder_name"].get<std::string>();
     return local_map_data;
 }
+
+void FileHandler::save_validated_map_data(const std::string& file_path, const MapData& map_data) {
+    std::ofstream save(file_path);
+    if (!save.is_open()) {
+        std::cerr << "Failed to open file for writing the export data" << std::endl;
+        return;
+    }
+
+    json save_dict;
+    save_dict["file_type"] = "exported_map_data";
+    save_dict["passages_holder_name"] = map_data.passages_holder_name;
+    save_dict["levels"] = json::array();
+
+    for (const auto& [level_name, level] : map_data.levels) {
+        json level_dict;
+        level_dict["name"] = level_name;
+        level_dict["starter_room_name"] = level->starter_room->name;
+        level_dict["possibilities"] = level->possibilities;
+        level_dict["connection_pairs"] = json::array();
+        for (const auto& pair : level->connection_pairs) {
+            level_dict["connection_pairs"].push_back(pair.first->to_string() +" - " + pair.second->to_string());
+        }
+
+        level_dict["rooms"] = json::array();
+        for (const auto& [room_name, room] : level->rooms) {
+            json room_dict;
+            room_dict["name"] = room_name;
+            room_dict["scene_uid"] = room->scene_uid;
+            room_dict["required"] = room->required;
+            room_dict["max_passes"] = room->max_passes;
+            room_dict["passages"] = json::array();
+
+            for (const auto& [passage_name, passage_variant] : room->passages) {
+                json passage_dict;
+                passage_dict["name"] = passage_name;
+                passage_dict["connections"] = json::array();
+
+                if (std::holds_alternative<std::vector<std::shared_ptr<Connection>>>(passage_variant)) {
+                    for (const auto& connection : std::get<std::vector<std::shared_ptr<Connection>>>(passage_variant)) {
+                        json connection_dict;
+                        connection_dict["name"] = connection->room->name;
+                        connection_dict["connected_passage"] = connection->connected_passage;
+                        passage_dict["connections"].push_back(connection_dict);
+                    }
+                }
+                room_dict["passages"].push_back(passage_dict);
+            }
+            level_dict["rooms"].push_back(room_dict);
+        }
+        save_dict["levels"].push_back(level_dict);
+    }
+
+    save << save_dict.dump();
+    save.close();
+}
