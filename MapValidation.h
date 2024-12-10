@@ -9,10 +9,10 @@
 class MapValidation
 {
 public:
-    MapData validate_map(const MapData map_data);
+    MapData validate_map(const MapData map_data, int max_instances);
 private:
     void multiply_rooms(std::shared_ptr<LevelData> level);
-    std::shared_ptr<LevelData> generate_level_possibilities(const std::shared_ptr<LevelData> input_level);
+    std::shared_ptr<LevelData> generate_level_possibilities(const std::shared_ptr<LevelData> input_level, int max_instances);
     std::stack<std::shared_ptr<Connection>> get_unused_connections_from_room(std::shared_ptr<Room> room);
     std::shared_ptr<Room> create_used_room(std::shared_ptr<Room> room);
     std::unordered_map<std::string, std::variant<std::shared_ptr<Connection>,std::vector<std::shared_ptr<Connection>>>> get_passages_for_room(std::shared_ptr<Room> room, std::variant<std::shared_ptr<Connection>,std::vector<std::shared_ptr<Connection>>> default_value = nullptr);

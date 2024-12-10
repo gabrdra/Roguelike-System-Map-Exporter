@@ -71,7 +71,8 @@ MapData FileHandler::load_map_data(const std::string& path) {
             std::cerr << "No starter room found for level " << level_dict["name"].get<std::string>() << std::endl;
             return MapData();
         }
-        
+        level->max_rooms = level_dict["max_rooms"].get<int>();
+        level->min_rooms = level_dict["min_rooms"].get<int>();
         local_map_data.levels[level_dict["name"].get<std::string>()] = level;
     }
 
@@ -79,11 +80,11 @@ MapData FileHandler::load_map_data(const std::string& path) {
     return local_map_data;
 }
 
-void FileHandler::save_validated_map_data(const std::string& file_path, const MapData& map_data) {
+bool FileHandler::save_validated_map_data(const std::string& file_path, const MapData& map_data) {
     std::ofstream save(file_path);
     if (!save.is_open()) {
         std::cerr << "Failed to open file for writing the export data" << std::endl;
-        return;
+        return false;
     }
 
     json save_dict;
@@ -97,6 +98,8 @@ void FileHandler::save_validated_map_data(const std::string& file_path, const Ma
         level_dict["starter_room_name"] = level->starter_room->name;
         level_dict["possibilities"] = level->possibilities;
         level_dict["connection_pairs"] = json::array();
+        level_dict["max_rooms"] = level->max_rooms;
+        level_dict["min_rooms"] = level->min_rooms;
         for (const auto& pair : level->connection_pairs) {
             level_dict["connection_pairs"].push_back(pair.first->to_string() +" - " + pair.second->to_string());
         }
@@ -132,4 +135,5 @@ void FileHandler::save_validated_map_data(const std::string& file_path, const Ma
 
     save << save_dict.dump();
     save.close();
+    return true;
 }

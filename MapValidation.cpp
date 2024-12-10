@@ -3,7 +3,7 @@
 #include <unordered_set>
 #include <list>
 #include <string>
-MapData MapValidation::validate_map(const MapData map_data) {
+MapData MapValidation::validate_map(const MapData map_data, int max_instances) {
     std::unordered_map<std::string, std::shared_ptr<LevelData>> levels;
     for (auto& level : map_data.levels) {
         if (level.second->starter_room == nullptr) {
@@ -12,7 +12,7 @@ MapData MapValidation::validate_map(const MapData map_data) {
         }
         multiply_rooms(level.second);
         // break;
-        std::shared_ptr<LevelData> return_level_data = generate_level_possibilities(level.second);
+        std::shared_ptr<LevelData> return_level_data = generate_level_possibilities(level.second, max_instances);
         if (return_level_data == nullptr) {
             std::cerr << "The "<<level.first<<" couldn't generate at least one viable instance" << std::endl;
             return MapData();
@@ -83,7 +83,7 @@ struct pair_equal {
                lhs.second->connected_passage == rhs.second->connected_passage;
     }
 };
-std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std::shared_ptr<LevelData> input_level) {
+std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std::shared_ptr<LevelData> input_level, int max_instances) {
     auto input_rooms = input_level->rooms;
     std::unordered_map<std::string, std::shared_ptr<BacktrackData>> used_rooms;
     std::vector<std::string> required_rooms_names;
@@ -110,6 +110,7 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
         while (!unused_connections.empty()) {
             auto outgoing_connection = unused_connections.top();
             unused_connections.pop();
+            //std::cout<<"Outgoing connection: "<<outgoing_connection->to_string()<<std::endl;
             connections_order.push_back(outgoing_connection);
 
             if (std::get<std::shared_ptr<Connection>>(outgoing_connection->room->passages[outgoing_connection->connected_passage]) != nullptr) {
@@ -211,26 +212,31 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
             break;
         }
         //print_used_rooms_and_conns(used_rooms, connections_order);
-        std::list<int> possibility;
-        for (const auto& conn : connections_order) {
-            auto other_side_conn = std::get<std::shared_ptr<Connection>>(used_rooms[conn->room->name]->room->passages[conn->connected_passage]);
-            std::pair<std::shared_ptr<Connection>, std::shared_ptr<Connection>> conn_pair = std::make_pair(conn, other_side_conn);
-            int index = -1;
-            if (connection_pairs_indexes.find(conn_pair) != connection_pairs_indexes.end()) {
-                index = connection_pairs_indexes[conn_pair];
+        if (used_rooms.size()<=input_level->max_rooms && used_rooms.size()>=input_level->min_rooms) {
+            std::list<int> possibility;
+            for (const auto& conn : connections_order) {
+                auto other_side_conn = std::get<std::shared_ptr<Connection>>(used_rooms[conn->room->name]->room->passages[conn->connected_passage]);
+                std::pair<std::shared_ptr<Connection>, std::shared_ptr<Connection>> conn_pair = std::make_pair(conn, other_side_conn);
+                int index = -1;
+                if (connection_pairs_indexes.find(conn_pair) != connection_pairs_indexes.end()) {
+                    index = connection_pairs_indexes[conn_pair];
+                }
+                if (index == -1) {
+                    connection_pairs_indexes[conn_pair] = connection_pairs.size();
+                    std::pair<std::shared_ptr<Connection>, std::shared_ptr<Connection>> inverse_conn_pair = std::make_pair(other_side_conn, conn);
+                    connection_pairs_indexes[inverse_conn_pair] = connection_pairs.size();
+                    index = connection_pairs.size();
+                    connection_pairs_indexes[conn_pair] = index;
+                    connection_pairs.push_back(conn_pair);
+                }
+                possibility.push_back(index);
             }
-            if (index == -1) {
-                connection_pairs_indexes[conn_pair] = connection_pairs.size();
-                std::pair<std::shared_ptr<Connection>, std::shared_ptr<Connection>> inverse_conn_pair = std::make_pair(other_side_conn, conn);
-                connection_pairs_indexes[inverse_conn_pair] = connection_pairs.size();
-                index = connection_pairs.size();
-                connection_pairs_indexes[conn_pair] = index;
-                connection_pairs.push_back(conn_pair);
+            possibilities.push_back(possibility);
+            std::cout<< "instances created: "<<possibilities.size()<<std::endl;
+            if (possibilities.size() >= max_instances) {
+                break;
             }
-            possibility.push_back(index);
         }
-        possibilities.push_back(possibility);
-
         auto incomming_connection = std::get<std::shared_ptr<Connection>>(used_rooms[connections_order.back()->room->name]->room->passages[connections_order.back()->connected_passage]);
         auto latest_connection = connections_order.back();
         connections_order.pop_back();
@@ -273,7 +279,7 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
     if (possibilities.empty()) {
         return nullptr;
     }
-    std::shared_ptr<LevelData> validated_level = std::make_shared<LevelData>(input_level->rooms,input_level->starter_room, possibilities, connection_pairs);
+    std::shared_ptr<LevelData> validated_level = std::make_shared<LevelData>(input_level->rooms,input_level->starter_room, possibilities, connection_pairs, input_level->max_rooms, input_level->min_rooms);
     return validated_level;
 }
 

@@ -10,7 +10,7 @@ OBJ_DIR = ./build
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 # Executable name
-TARGET = rogueSysMapExporter
+TARGET = RogueSysMapExporter
 
 # Default target
 all: $(TARGET)
