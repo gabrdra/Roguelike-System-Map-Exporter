@@ -4,6 +4,8 @@
 #include "inipp.h"
 #include <iostream>
 #include <string>
+#include <chrono>
+
 int main()
 {
     MapValidation mapValidation;
@@ -35,10 +37,15 @@ int main()
         return 1;
     }
     std::cout << "Map data loaded" << std::endl;
-    //main.print_map_data(map_data);
-    //std::cout << std::endl << "Map data after validation" << std::endl;
+
+    // auto start = std::chrono::high_resolution_clock::now(); // Start time
+
     MapData validated_map = mapValidation.validate_map(map_data, max_instances);
-    //main.print_validated_map_data(validated_map);
+
+    // auto end = std::chrono::high_resolution_clock::now(); // End time
+    // std::chrono::duration<double> duration = end - start;
+    // std::cout << "Map validation took " << duration.count() << " seconds" << std::endl;
+
     bool save_result = fileHandler.save_validated_map_data(exported_data_path, validated_map);
     if (!save_result){
         return 1;

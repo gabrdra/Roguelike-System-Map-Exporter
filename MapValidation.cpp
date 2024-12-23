@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <list>
 #include <string>
+#include <chrono>
 MapData MapValidation::validate_map(const MapData map_data, int max_instances) {
     std::unordered_map<std::string, std::shared_ptr<LevelData>> levels;
     for (auto& level : map_data.levels) {
@@ -12,7 +13,15 @@ MapData MapValidation::validate_map(const MapData map_data, int max_instances) {
         }
         multiply_rooms(level.second);
         // break;
+
+        auto start = std::chrono::high_resolution_clock::now();
+
         std::shared_ptr<LevelData> return_level_data = generate_level_possibilities(level.second, max_instances);
+        
+        auto end = std::chrono::high_resolution_clock::now(); // End time
+        std::chrono::duration<double> duration = end - start;
+        std::cout << "Map validation for "<<level.first<<" took " << duration.count() << " seconds" << std::endl;
+
         if (return_level_data == nullptr) {
             std::cerr << "The "<<level.first<<" couldn't generate at least one viable instance" << std::endl;
             return MapData();
@@ -54,19 +63,19 @@ void MapValidation::multiply_rooms(std::shared_ptr<LevelData> level) {
     }
 }
 
-// void print_used_rooms_and_conns(std::unordered_map<std::string, std::shared_ptr<BacktrackData>> used_rooms, std::vector<std::shared_ptr<Connection>> connections_order){
-//     std::cout<<"Used rooms: "<<std::endl;
-//     for (const auto& [room_name, room] : used_rooms) {
-//         std::cout << "Room: " << room_name << std::endl;
-//         for (const auto& [passage_name, conn] : room->room->passages) {
-//             std::cout << "Passage: " << passage_name << "    " << ((std::get<std::shared_ptr<Connection>>(conn)==nullptr)?"null":std::get<std::shared_ptr<Connection>>(conn)->to_string()) << std::endl;
-//         }
-//     }
-//     std::cout<<"Connections order: "<<std::endl;
-//     for (const auto& conn : connections_order) {
-//         std::cout << "    " << conn->to_string() << std::endl;
-//     }
-// }
+void print_used_rooms_and_conns(std::unordered_map<std::string, std::shared_ptr<BacktrackData>> used_rooms, std::vector<std::shared_ptr<Connection>> connections_order){
+    std::cout<<"Used rooms: "<<std::endl;
+    for (const auto& [room_name, room] : used_rooms) {
+        std::cout << "Room: " << room_name << std::endl;
+        for (const auto& [passage_name, conn] : room->room->passages) {
+            std::cout << "Passage: " << passage_name << "    " << ((std::get<std::shared_ptr<Connection>>(conn)==nullptr)?"null":std::get<std::shared_ptr<Connection>>(conn)->to_string()) << std::endl;
+        }
+    }
+    std::cout<<"Connections order: "<<std::endl;
+    for (const auto& conn : connections_order) {
+        std::cout << "    " << conn->to_string() << std::endl;
+    }
+}
 
 struct pair_hash {
     std::size_t operator() (const std::pair<std::shared_ptr<Connection>, std::shared_ptr<Connection>>& pair) const {
@@ -110,7 +119,8 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
         while (!unused_connections.empty()) {
             auto outgoing_connection = unused_connections.top();
             unused_connections.pop();
-            //std::cout<<"Outgoing connection: "<<outgoing_connection->to_string()<<std::endl;
+            print_used_rooms_and_conns(used_rooms, connections_order);
+            std::cout<<"Outgoing connection: "<<outgoing_connection->to_string()<<std::endl;
             connections_order.push_back(outgoing_connection);
 
             if (std::get<std::shared_ptr<Connection>>(outgoing_connection->room->passages[outgoing_connection->connected_passage]) != nullptr) {
@@ -120,6 +130,7 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
             auto possible_connections = std::get<std::vector<std::shared_ptr<Connection>>>(input_rooms[outgoing_connection->room->name]->passages[outgoing_connection->connected_passage]);
             std::shared_ptr<Connection> incomming_connection = nullptr;
             for (const auto& conn : possible_connections) {
+                std::cout<<"conn: "<<conn->to_string()<<std::endl;
                 bool valid_room = true;
                 if (used_rooms.find(conn->room->name) != used_rooms.end()) {
                     valid_room = std::get<std::shared_ptr<Connection>>(used_rooms[conn->room->name]->room->passages[conn->connected_passage]) == nullptr;
@@ -147,7 +158,7 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
             }
 
             //auto incomming_connection = possible_connections.back();
-            possible_connections.pop_back();
+            //possible_connections.pop_back();
             used_rooms[outgoing_connection->room->name]->passages_attempts[outgoing_connection->connected_passage].insert(incomming_connection);
 
             if (used_rooms.find(incomming_connection->room->name) == used_rooms.end()) {
@@ -232,7 +243,7 @@ std::shared_ptr<LevelData> MapValidation::generate_level_possibilities(const std
                 possibility.push_back(index);
             }
             possibilities.push_back(possibility);
-            std::cout<< "instances created: "<<possibilities.size()<<std::endl;
+            //std::cout<< "instances created: "<<possibilities.size()<<std::endl;
             if (possibilities.size() >= max_instances) {
                 break;
             }
